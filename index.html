@@ -1,0 +1,222 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<style>
+body {
+	background-color: #159957;
+    background-image: linear-gradient(120deg, #155799, #159957);
+	color:white;
+}
+input[type=text]{
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+     border-radius: 5px;
+     border: 1px solid #2d9fd9;
+     color: black;
+	 height:40px;
+	 width:100%;
+    }
+    
+input[type=text]:focus {
+     outline: none;
+     border: 1px solid #a0d18c;
+     color: #0033ff;
+}
+.point {
+	margin-left:5px;
+}
+::-webkit-input-placeholder { /* Edge */
+  color: #b2c99d;
+  font-size:20px;
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #b2c99d;
+  font-size:20px;
+}
+::placeholder {
+  color: #728a75;
+  font-size:20px;
+}
+table td {
+    padding:0;
+    margin: 0;
+    width: 80px;
+}
+#tdRankpoint td {
+ text-align:center;
+}
+#link {
+width:30%;
+}
+</style>
+<!-- "2327:1150:2927:2532:1539:871:1211:577:1437:664:3948:1906:761:1174:2147:3751:1377:1314:1953:2134:2958:1054:3018:2132:336:"
+Ez 20031 pont.
+-->
+<script type="text/javascript">
+	function getUrlVars() {
+		var vars = {};
+		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+			vars[key] = value;
+		});
+		return vars;
+	}
+	function calculatePoint(p) {
+		if (p<=10) {
+			return 40000 / p;
+		}
+		else if (p>10) {
+			return 4000 / (Math.pow(2,(Math.log10(p) - 1))); 
+		} else {
+			return 0;
+		}
+	}
+	function calculateAll() {
+		var total = 0;
+		var saveRanks = "";
+		$('.rank').each(function() {
+			var value = $(this).val();
+			if (!isNaN(parseInt(value))) {
+				total += calculatePoint(value);
+			} else {
+				value = "";
+			}
+			saveRanks += value + ":";
+		});
+		document.getElementById('result').innerHTML = Math.round(total);
+		localStorage.setItem("records", saveRanks);
+		$('#link').val(window.location.href.split('?')[0] + "?ranks="+saveRanks);
+	}
+	function copyLink() {
+		  var copyText = document.getElementById("link");
+		  copyText.select();
+		  copyText.setSelectionRange(0, 99999);
+		  document.execCommand("copy");
+		  $('#copyResult').html("Copied to clipboard!");
+	}
+	function reset() {
+		 var total = 0;
+		 var saveRanks = "";
+		 var confirmed = confirm("Are you sure? All data will be lost.");
+		 if (confirmed) {
+			$('.rank').each(function() {
+				$(this).val("");
+				var value = $(this).val();
+				if (!isNaN(parseInt(value))) {
+					total += calculatePoint(value);
+				} else {
+					value = "";
+				}
+				saveRanks += value + ":";
+			});
+			document.getElementById('result').innerHTML = Math.round(total);
+			localStorage.setItem("records", saveRanks);
+			$('#link').val(window.location.href.split('?')[0] + "?ranks="+saveRanks);
+		 }
+	}
+	$( document ).ready(function() {
+		$('.rank').change(function() {
+			var point = $(this).val();
+			$('#p' + $(this).attr('id')).html(Math.round(parseInt(calculatePoint(point))));
+			calculateAll();
+		});
+		var urlparameter = getUrlVars()["ranks"];
+		if (urlparameter != undefined) {
+		var savedRanks = urlparameter;
+		} else {
+		var savedRanks = localStorage.getItem("records");
+		}
+		if (savedRanks != null) {
+			var savedRanksArray = savedRanks.split(":");
+			var i = 0;
+			$('.rank').each(function() {
+				var rank = savedRanksArray[i];
+				if (!isNaN(parseInt(rank))) {
+					$(this).val(rank);
+					$(this).change();
+				}
+				i++;
+			});
+		}
+	});
+	
+
+</script>
+</head>
+<body>
+<div class="form-group text-center">
+<br>
+<h2>Trackmania Summer 2020 point calculator</h2>
+<br>
+	<table cellspacing="0" cellpadding="0" style="table-layout:fixed;margin: 0 auto !important">
+	<tr id="tdRankpoint">
+	<td>Rank</td><td>Point</td>
+	<td>Rank</td><td>Point</td>
+	<td>Rank</td><td>Point</td>
+	<td>Rank</td><td>Point</td>
+	<td>Rank</td><td>Point</td>
+	</tr>
+	<tr>
+	<td colspan="2"><p style="background-color:#ffffff;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
+	<td colspan="2"><p style="background-color:#6efaa1;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
+	<td colspan="2"><p style="background-color:#0033ff;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
+	<td colspan="2"><p style="background-color:#ff0000;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
+	<td colspan="2"><p style="background-color:#000000;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
+	</tr>
+	<tr>
+    <td><input placeholder="1" type="text" class="rank" id="w1"></td><td><span class="point" id="pw1"></span></td>
+	<td><input placeholder="6" type="text" class="rank" id="w2"></td><td><span class="point" id="pw2"></span></td>
+	<td><input placeholder="11" type="text" class="rank" id="w3"></td><td><span class="point" id="pw3"></span></td>
+	<td><input placeholder="16" type="text" class="rank" id="w4"></td><td><span class="point" id="pw4"></span></td>
+	<td><input placeholder="21" type="text" class="rank" id="w5"></td><td><span class="point" id="pw5"></span></td>
+	</tr>
+	<tr>
+    <td><input placeholder="2" type="text" class="rank" id="w21"></td><td><span class="point" id="pw21"></span></td>
+	<td><input placeholder="7" type="text" class="rank" id="w22"></td><td><span class="point" id="pw22"></span></td>
+	<td><input placeholder="12" type="text" class="rank" id="w23"></td><td><span class="point" id="pw23"></span></td>
+	<td><input placeholder="17" type="text" class="rank" id="w24"></td><td><span class="point" id="pw24"></span></td>
+	<td><input placeholder="22" type="text" class="rank" id="w25"></td><td><span class="point" id="pw25"></span></td>
+	</tr>
+	<tr>
+    <td><input placeholder="3" type="text" class="rank" id="w31"></td><td><span class="point" id="pw31"></span></td>
+	<td><input placeholder="8" type="text" class="rank" id="w32"></td><td><span class="point" id="pw32"></span></td>
+	<td><input placeholder="13" type="text" class="rank" id="w33"></td><td><span class="point" id="pw33"></span></td>
+	<td><input placeholder="18" type="text" class="rank" id="w34"></td><td><span class="point" id="pw34"></span></td>
+	<td><input placeholder="23" type="text" class="rank" id="w35"></td><td><span class="point" id="pw35"></span></td>
+	</tr>
+	<tr>
+    <td><input placeholder="4" type="text" class="rank" id="w41"></td><td><span class="point" id="pw41"></span></td>
+	<td><input placeholder="9" type="text" class="rank" id="w42"></td><td><span class="point" id="pw42"></span></td>
+	<td><input placeholder="14" type="text" class="rank" id="w43"></td><td><span class="point" id="pw43"></span></td>
+	<td><input placeholder="19" type="text" class="rank" id="w44"></td><td><span class="point" id="pw44"></span></td>
+	<td><input placeholder="24" type="text" class="rank" id="w45"></td><td><span class="point" id="pw45"></span></td>
+	</tr>
+	<tr>
+    <td><input placeholder="5" type="text" class="rank" id="w51"></td><td><span class="point" id="pw51"></span></td>
+	<td><input placeholder="10" type="text" class="rank" id="w52"></td><td><span class="point" id="pw52"></span></td>
+	<td><input placeholder="15" type="text" class="rank" id="w53"></td><td><span class="point" id="pw53"></span></td>
+	<td><input placeholder="20" type="text" class="rank" id="w54"></td><td><span class="point" id="pw54"></span></td>
+	<td><input placeholder="25" type="text" class="rank" id="w55"></td><td><span class="point" id="pw55"></span></td>
+	</tr>
+	</table>
+	<br>
+	<h2>Total points</h2>
+	<h3 id="result">0</h3>
+	<br>
+	<h4>Generated link</h4>
+	<div><input type="text" id="link"></input><br><button type="button" class="btn btn-secondary" onclick="copyLink()">Copy link</button></div>
+	<div id="copyResult"></div>
+	<br>
+	<h5>Calculation info</h5>
+	<p>The calculation is based on the <a href="https://twitter.com/Hylis1/status/1281283401140572160" style="color:black;" target="_blank">tweets</a> on the developers.
+	<br>The actual points may vary based on internal factors.
+	<br>Rank 1-10: 40,000 / rank 
+	<br>Rank >10: 4000 / (2 ^ (log (rank) - 1))
+	</p>
+	<button type="button" class="btn btn-danger" onclick="reset()">Reset calculator</button>
+</div>
+</body>
+</html>
