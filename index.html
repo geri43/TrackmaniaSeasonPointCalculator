@@ -104,6 +104,7 @@ Ez 20031 pont.
 		 if (confirmed) {
 			$('.rank').each(function() {
 				$(this).val("");
+				$(this).change();
 				var value = $(this).val();
 				if (!isNaN(parseInt(value))) {
 					total += calculatePoint(value);
