@@ -1,0 +1,2 @@
+# TrackmaniaSeasonPointCalculator
+Trackmania Season Point Calculator
