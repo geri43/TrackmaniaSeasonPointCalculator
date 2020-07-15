@@ -58,6 +58,7 @@ width:30%;
 Ez 20031 pont.
 -->
 <script type="text/javascript">
+	var tiermodifier = [0, 0.53/12, 0.53/6, 0.53/4, 0.53/3]; 
 	function getUrlVars() {
 		var vars = {};
 		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -65,15 +66,16 @@ Ez 20031 pont.
 		});
 		return vars;
 	}
-	function calculatePoint(p) {
+	function calculatePoint(p, tier) {
+		var point = 0;
 		if (p<=10) {
-			return 40000 / p;
+			point = 40000 / p;
 		}
 		else if (p>10) {
-			return 4000 / (Math.pow(2,(Math.log10(p) - 1))); 
-		} else {
-			return 0;
+			point = 4000 / (Math.pow(2,(Math.log10(p) - 1))); 
 		}
+		
+		return point - point * tiermodifier[tier];
 	}
 	function calculateAll() {
 		var total = 0;
@@ -81,7 +83,7 @@ Ez 20031 pont.
 		$('.rank').each(function() {
 			var value = $(this).val();
 			if (!isNaN(parseInt(value))) {
-				total += calculatePoint(value);
+				total += calculatePoint(value, parseInt($(this).attr('id').slice(-1)) - 1);
 			} else {
 				value = "";
 			}
@@ -108,7 +110,7 @@ Ez 20031 pont.
 				$(this).change();
 				var value = $(this).val();
 				if (!isNaN(parseInt(value))) {
-					total += calculatePoint(value);
+					total += calculatePoint(value, parseInt($(this).attr('id').slice(-1)) - 1);
 				} else {
 					value = "";
 				}
@@ -122,7 +124,7 @@ Ez 20031 pont.
 	$( document ).ready(function() {
 		$('.rank').change(function() {
 			var point = $(this).val();
-			$('#p' + $(this).attr('id')).html(Math.round(parseInt(calculatePoint(point))));
+			$('#p' + $(this).attr('id')).html(Math.round(parseInt(calculatePoint(point, parseInt($(this).attr('id').slice(-1)) - 1))));
 			calculateAll();
 		});
 		var urlparameter = getUrlVars()["ranks"];
@@ -208,15 +210,23 @@ Ez 20031 pont.
 	<h2>Total points</h2>
 	<h3 id="result">0</h3>
 	<br>
-	<h4>Generated link</h4>
+	<h4>Save your results</h4>
 	<div><input type="text" id="link"></input><br><button type="button" class="btn btn-secondary" onclick="copyLink()">Copy link</button></div>
 	<div id="copyResult"></div>
 	<br>
 	<h5>Calculation info</h5>
-	<p>The calculation is based on the <a href="https://twitter.com/Hylis1/status/1281283401140572160" style="color:black;" target="_blank">tweets</a> on the developers.
-	<br>The actual points may vary based on internal factors.
+	<p style="font-size:11px;">The calculation is based on the <a href="https://twitter.com/Hylis1/status/1281283401140572160" style="color:black;" target="_blank">tweets</a> on the developers.
+	<br>There is also a modifier applied for different map groups, which is not yet public, 
+	<br>but I took a guess which seems very close.
+	<br><strong>Base point calculation:</strong>
 	<br>Rank 1-10: 40,000 / rank 
 	<br>Rank >10: 4000 / (2 ^ (log (rank) - 1))
+	<br><strong>Speculated tier modifier:</strong>
+	<br>Green: 53/12% 
+	<br>Blue: 53/6% 
+	<br>Red: 53/4% 
+	<br>Black: 53/3% 
+	<br><strong>Final equation: point = base point * (1 - tier modifier / 100)</strong>
 	</p>
 	<button type="button" class="btn btn-danger" onclick="reset()">Reset calculator</button>
 </div>
