@@ -66,12 +66,16 @@ Ez 20031 pont.
 		return vars;
 	}
 	function calculatePoint(p) {
-		if (p<=10) {
+		var tier = Math.ceil(Math.log10(p));
+		if (tier < 2) {
 			return 40000 / p;
 		}
-		else if (p>10) {
-			return 4000 / (Math.pow(2,(Math.log10(p) - 1))); 
-		} else {
+		else if (tier < 7) {
+			var basePoints = 4000 / Math.pow(2, tier - 1);
+			var rankMultiplier = Math.pow(10, tier - 1) / p + 0.9;
+			return basePoints * rankMultiplier;
+		}
+		else {
 			return 0;
 		}
 	}
@@ -151,7 +155,7 @@ Ez 20031 pont.
 <body>
 <div class="form-group text-center">
 <br>
-<h2>Trackmania Summer 2020 point calculator <span style="font-size:16px;">by geri43</span></h2>
+<h2>Trackmania Season Point Calculator <span style="font-size:16px;">by geri43</span></h2>
 <br>
 	<table cellspacing="0" cellpadding="0" style="table-layout:fixed;margin: 0 auto !important">
 	<tr id="tdRankpoint">
@@ -213,10 +217,9 @@ Ez 20031 pont.
 	<div id="copyResult"></div>
 	<br>
 	<h5>Calculation info</h5>
-	<p>The calculation is based on the <a href="https://twitter.com/Hylis1/status/1281283401140572160" style="color:black;" target="_blank">tweets</a> on the developers.
-	<br>The actual points may vary based on internal factors.
+	<p>The calculation is based on <a href="https://github.com/geri43/TrackmaniaSeasonPointCalculator/issues/1" style="color:black;" target="_blank">zanaptak</a>'s  formula:
 	<br>Rank 1-10: 40,000 / rank 
-	<br>Rank >10: 4000 / (2 ^ (log (rank) - 1))
+	<br>Rank >10: (4000 / 2 ^ (ceiling(log10(rank)) - 1)) * (10 ^ (ceiling(log10(rank)) - 1) / rank + 0.9)
 	</p>
 	<button type="button" class="btn btn-danger" onclick="reset()">Reset calculator</button>
 </div>
