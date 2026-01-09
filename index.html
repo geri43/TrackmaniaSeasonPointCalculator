@@ -2,9 +2,6 @@
 <head>
 <title>Trackmania Season Point Calculator</title>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 <style>
 body {
 	background-color: #159957;
@@ -14,33 +11,37 @@ body {
 input[type=text]{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-     border-radius: 5px;
-     border: 1px solid #2d9fd9;
-     color: black;
-	 height:40px;
-	 width:100%;
+	border-radius: 5px;
+	border: 1px solid #2d9fd9;
+	color: black;
+	height:40px;
+	width:100%;
     }
     
 input[type=text]:focus {
-     outline: none;
-     border: 1px solid #a0d18c;
-     color: #0033ff;
+	outline: none;
+	border: 1px solid #a0d18c;
+	color: #0033ff;
+}
+input[type=text]:invalid {
+	color: red;
+	border: 2px solid red;
 }
 .point {
-	margin-left:5px;
+	margin-left:14px;
 }
 ::-webkit-input-placeholder { /* Edge */
-  color: #b2c99d;
-  font-size:20px;
+	color: #b2c99d;
+	font-size:20px;
 }
 
 :-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: #b2c99d;
-  font-size:20px;
+	color: #b2c99d;
+	font-size:20px;
 }
 ::placeholder {
-  color: #728a75;
-  font-size:20px;
+	color: #728a75;
+	font-size:20px;
 }
 table td {
     padding:0;
@@ -48,15 +49,19 @@ table td {
     width: 80px;
 }
 #tdRankpoint td {
- text-align:center;
+	text-align:center;
+}
+.score-row td {
+	padding-left:6px;
 }
 #link {
-width:30%;
+	width:30%;
+}
+#copyBtn {
+	margin-left: 6px;
+	margin-top: -5px;
 }
 </style>
-<!-- "2327:1150:2927:2532:1539:871:1211:577:1437:664:3948:1906:761:1174:2147:3751:1377:1314:1953:2134:2958:1054:3018:2132:336:"
-Ez 20031 pont.
--->
 <script type="text/javascript">
 	function getUrlVars() {
 		var vars = {};
@@ -82,80 +87,72 @@ Ez 20031 pont.
 	function calculateAll() {
 		var total = 0;
 		var saveRanks = "";
-		$('.rank').each(function() {
-			var value = $(this).val();
-			if (!isNaN(parseInt(value))) {
+		document.querySelectorAll('.rank').forEach(function(el) {
+			var value = el.value;
+			if (!isNaN(parseInt(value)) && value != 0) {
 				total += calculatePoint(value);
 			} else {
 				value = "";
 			}
 			saveRanks += value + ":";
 		});
-		document.getElementById('result').innerHTML = Math.round(total);
+		document.getElementById('result').innerHTML = Math.round(total).toLocaleString('fr-FR');
 		localStorage.setItem("records", saveRanks);
-		$('#link').val(window.location.href.split('?')[0] + "?ranks="+saveRanks);
+		if (total > 0) {
+			document.getElementById('link').value = window.location.href.split('?')[0] + "?ranks=" + saveRanks;
+		} else {
+			document.getElementById('link').value = "";
+		}
 	}
 	function copyLink() {
-		  var copyText = document.getElementById("link");
-		  copyText.select();
-		  copyText.setSelectionRange(0, 99999);
-		  document.execCommand("copy");
-		  $('#copyResult').html("Copied to clipboard!");
+		var copyText = document.getElementById("link");
+		copyText.select();
+		copyText.setSelectionRange(0, 99999);
+		document.execCommand("copy");
+		document.getElementById('copyResult').innerHTML = "Copied to clipboard!";
 	}
+
 	function reset() {
-		 var total = 0;
-		 var saveRanks = "";
-		 var confirmed = confirm("Are you sure? All data will be lost.");
-		 if (confirmed) {
-			$('.rank').each(function() {
-				$(this).val("");
-				$(this).change();
-				var value = $(this).val();
-				if (!isNaN(parseInt(value))) {
-					total += calculatePoint(value);
-				} else {
-					value = "";
-				}
-				saveRanks += value + ":";
+		var confirmed = confirm("Are you sure? All data will be lost.");
+		if (confirmed) {
+			document.querySelectorAll('.rank').forEach(function(el) {
+				el.value = "";
+				el.dispatchEvent(new Event('change'));
 			});
-			document.getElementById('result').innerHTML = Math.round(total);
-			localStorage.setItem("records", saveRanks);
-			$('#link').val(window.location.href.split('?')[0] + "?ranks="+saveRanks);
-		 }
-	}
-	$( document ).ready(function() {
-		$('.rank').change(function() {
-			var point = $(this).val();
-			$('#p' + $(this).attr('id')).html(Math.round(parseInt(calculatePoint(point))));
-			calculateAll();
-		});
-		var urlparameter = getUrlVars()["ranks"];
-		if (urlparameter != undefined) {
-		var savedRanks = urlparameter;
-		} else {
-		var savedRanks = localStorage.getItem("records");
 		}
+	}
+	document.addEventListener('DOMContentLoaded', function() {
+		document.querySelectorAll('.rank').forEach(function(el) {
+			el.addEventListener('change', function() {
+				var point = this.value;
+				document.getElementById('p' + this.getAttribute('id')).innerHTML =
+					!isNaN(parseInt(point)) && point != 0 ? Math.round(parseInt(calculatePoint(point))).toLocaleString('fr-FR') : "";
+				calculateAll();
+			});
+		});
+
+		var urlparameter = getUrlVars()["ranks"];
+		var savedRanks = urlparameter !== undefined ? urlparameter : localStorage.getItem("records");
+
 		if (savedRanks != null) {
 			var savedRanksArray = savedRanks.split(":");
 			var i = 0;
-			$('.rank').each(function() {
+			document.querySelectorAll('.rank').forEach(function(el) {
 				var rank = savedRanksArray[i];
 				if (!isNaN(parseInt(rank))) {
-					$(this).val(rank);
-					$(this).change();
+					el.value = rank;
+					el.dispatchEvent(new Event('change'));
 				}
 				i++;
 			});
 		}
 	});
-	
-
 </script>
 </head>
 <body>
 <div class="form-group text-center">
 <br>
-<h2>Trackmania Season Point Calculator <span style="font-size:16px;">by geri43</span></h2>
+<h2>Trackmania Season Point Calculator</h2>
 <br>
 	<table cellspacing="0" cellpadding="0" style="table-layout:fixed;margin: 0 auto !important">
 	<tr id="tdRankpoint">
@@ -172,54 +169,54 @@ Ez 20031 pont.
 	<td colspan="2"><p style="background-color:#ff0000;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
 	<td colspan="2"><p style="background-color:#000000;padding:5px;margin:7px;margin-bottom:14px;"></p></td>
 	</tr>
-	<tr>
-    <td><input placeholder="1" type="text" class="rank" id="w1" tabindex="1"></td><td><span class="point" id="pw1"></span></td>
-	<td><input placeholder="6" type="text" class="rank" id="w2" tabindex="6"></td><td><span class="point" id="pw2"></span></td>
-	<td><input placeholder="11" type="text" class="rank" id="w3" tabindex="11"></td><td><span class="point" id="pw3"></span></td>
-	<td><input placeholder="16" type="text" class="rank" id="w4" tabindex="16"></td><td><span class="point" id="pw4"></span></td>
-	<td><input placeholder="21" type="text" class="rank" id="w5" tabindex="21"></td><td><span class="point" id="pw5"></span></td>
+	<tr class="score-row">
+    <td><input pattern="\d*" placeholder="1" type="text" class="rank" id="w1" tabindex="1"></td><td><span class="point" id="pw1"></span></td>
+	<td><input pattern="\d*" placeholder="6" type="text" class="rank" id="w2" tabindex="6"></td><td><span class="point" id="pw2"></span></td>
+	<td><input pattern="\d*" placeholder="11" type="text" class="rank" id="w3" tabindex="11"></td><td><span class="point" id="pw3"></span></td>
+	<td><input pattern="\d*" placeholder="16" type="text" class="rank" id="w4" tabindex="16"></td><td><span class="point" id="pw4"></span></td>
+	<td><input pattern="\d*" placeholder="21" type="text" class="rank" id="w5" tabindex="21"></td><td><span class="point" id="pw5"></span></td>
 	</tr>
-	<tr>
-    <td><input placeholder="2" type="text" class="rank" id="w21" tabindex="2"></td><td><span class="point" id="pw21"></span></td>
-	<td><input placeholder="7" type="text" class="rank" id="w22" tabindex="7"></td><td><span class="point" id="pw22"></span></td>
-	<td><input placeholder="12" type="text" class="rank" id="w23" tabindex="12"></td><td><span class="point" id="pw23"></span></td>
-	<td><input placeholder="17" type="text" class="rank" id="w24" tabindex="17"></td><td><span class="point" id="pw24"></span></td>
-	<td><input placeholder="22" type="text" class="rank" id="w25" tabindex="22"></td><td><span class="point" id="pw25"></span></td>
+	<tr class="score-row">
+    <td><input pattern="\d*" placeholder="2" type="text" class="rank" id="w21" tabindex="2"></td><td><span class="point" id="pw21"></span></td>
+	<td><input pattern="\d*" placeholder="7" type="text" class="rank" id="w22" tabindex="7"></td><td><span class="point" id="pw22"></span></td>
+	<td><input pattern="\d*" placeholder="12" type="text" class="rank" id="w23" tabindex="12"></td><td><span class="point" id="pw23"></span></td>
+	<td><input pattern="\d*" placeholder="17" type="text" class="rank" id="w24" tabindex="17"></td><td><span class="point" id="pw24"></span></td>
+	<td><input pattern="\d*" placeholder="22" type="text" class="rank" id="w25" tabindex="22"></td><td><span class="point" id="pw25"></span></td>
 	</tr>
-	<tr>
-    <td><input placeholder="3" type="text" class="rank" id="w31" tabindex="3"></td><td><span class="point" id="pw31"></span></td>
-	<td><input placeholder="8" type="text" class="rank" id="w32" tabindex="8"></td><td><span class="point" id="pw32"></span></td>
-	<td><input placeholder="13" type="text" class="rank" id="w33" tabindex="13"></td><td><span class="point" id="pw33"></span></td>
-	<td><input placeholder="18" type="text" class="rank" id="w34" tabindex="18"></td><td><span class="point" id="pw34"></span></td>
-	<td><input placeholder="23" type="text" class="rank" id="w35" tabindex="23"></td><td><span class="point" id="pw35"></span></td>
+	<tr class="score-row">
+    <td><input pattern="\d*" placeholder="3" type="text" class="rank" id="w31" tabindex="3"></td><td><span class="point" id="pw31"></span></td>
+	<td><input pattern="\d*" placeholder="8" type="text" class="rank" id="w32" tabindex="8"></td><td><span class="point" id="pw32"></span></td>
+	<td><input pattern="\d*" placeholder="13" type="text" class="rank" id="w33" tabindex="13"></td><td><span class="point" id="pw33"></span></td>
+	<td><input pattern="\d*" placeholder="18" type="text" class="rank" id="w34" tabindex="18"></td><td><span class="point" id="pw34"></span></td>
+	<td><input pattern="\d*" placeholder="23" type="text" class="rank" id="w35" tabindex="23"></td><td><span class="point" id="pw35"></span></td>
 	</tr>
-	<tr>
-    <td><input placeholder="4" type="text" class="rank" id="w41" tabindex="4"></td><td><span class="point" id="pw41"></span></td>
-	<td><input placeholder="9" type="text" class="rank" id="w42" tabindex="9"></td><td><span class="point" id="pw42"></span></td>
-	<td><input placeholder="14" type="text" class="rank" id="w43" tabindex="14"></td><td><span class="point" id="pw43"></span></td>
-	<td><input placeholder="19" type="text" class="rank" id="w44" tabindex="19"></td><td><span class="point" id="pw44"></span></td>
-	<td><input placeholder="24" type="text" class="rank" id="w45" tabindex="24"></td><td><span class="point" id="pw45"></span></td>
+	<tr class="score-row">
+    <td><input pattern="\d*" placeholder="4" type="text" class="rank" id="w41" tabindex="4"></td><td><span class="point" id="pw41"></span></td>
+	<td><input pattern="\d*" placeholder="9" type="text" class="rank" id="w42" tabindex="9"></td><td><span class="point" id="pw42"></span></td>
+	<td><input pattern="\d*" placeholder="14" type="text" class="rank" id="w43" tabindex="14"></td><td><span class="point" id="pw43"></span></td>
+	<td><input pattern="\d*" placeholder="19" type="text" class="rank" id="w44" tabindex="19"></td><td><span class="point" id="pw44"></span></td>
+	<td><input pattern="\d*" placeholder="24" type="text" class="rank" id="w45" tabindex="24"></td><td><span class="point" id="pw45"></span></td>
 	</tr>
-	<tr>
-    <td><input placeholder="5" type="text" class="rank" id="w51" tabindex="5"></td><td><span class="point" id="pw51"></span></td>
-	<td><input placeholder="10" type="text" class="rank" id="w52" tabindex="10"></td><td><span class="point" id="pw52"></span></td>
-	<td><input placeholder="15" type="text" class="rank" id="w53" tabindex="15"></td><td><span class="point" id="pw53"></span></td>
-	<td><input placeholder="20" type="text" class="rank" id="w54" tabindex="20"></td><td><span class="point" id="pw54"></span></td>
-	<td><input placeholder="25" type="text" class="rank" id="w55" tabindex="25"></td><td><span class="point" id="pw55"></span></td>
+	<tr class="score-row">
+    <td><input pattern="\d*" placeholder="5" type="text" class="rank" id="w51" tabindex="5"></td><td><span class="point" id="pw51"></span></td>
+	<td><input pattern="\d*" placeholder="10" type="text" class="rank" id="w52" tabindex="10"></td><td><span class="point" id="pw52"></span></td>
+	<td><input pattern="\d*" placeholder="15" type="text" class="rank" id="w53" tabindex="15"></td><td><span class="point" id="pw53"></span></td>
+	<td><input pattern="\d*" placeholder="20" type="text" class="rank" id="w54" tabindex="20"></td><td><span class="point" id="pw54"></span></td>
+	<td><input pattern="\d*" placeholder="25" type="text" class="rank" id="w55" tabindex="25"></td><td><span class="point" id="pw55"></span></td>
 	</tr>
 	</table>
 	<br>
 	<h2>Total points</h2>
 	<h3 id="result">0</h3>
 	<br>
-	<h4>Generated link</h4>
-	<div><input type="text" id="link"></input><br><button type="button" class="btn btn-secondary" onclick="copyLink()">Copy link</button></div>
+	<h5>Generated link</h5>
+	<div><input disabled type="text" id="link"></input><button id="copyBtn" type="button" class="btn btn-secondary" onclick="copyLink()">Copy link</button></div>
 	<div id="copyResult"></div>
 	<br>
 	<h5>Calculation info</h5>
 	<p>The calculation is based on <a href="https://github.com/geri43/TrackmaniaSeasonPointCalculator/issues/1" style="color:black;" target="_blank">zanaptak</a>'s  formula:
-	<br>Rank 1-10: 40,000 / rank 
-	<br>Rank >10: (4000 / 2 ^ (ceiling(log10(rank)) - 1)) * (10 ^ (ceiling(log10(rank)) - 1) / rank + 0.9)
+	<br><strong>Rank 1-10:</strong> 40 000 / <em>rank</em> 
+	<br><strong>Rank >10:</strong> (4 000 / 2 ^ (ceiling(log10(<em>rank</em>)) - 1)) * (10 ^ (ceiling(log10(<em>rank</em>)) - 1) / <em>rank</em> + 0.9)
 	</p>
 	<button type="button" class="btn btn-danger" onclick="reset()">Reset calculator</button>
 </div>
